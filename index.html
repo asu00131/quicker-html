@@ -31,17 +31,13 @@
             // ✅【新增】优先处理 /Search?keyword=xxx
             const params = new URLSearchParams(window.location.search);
             const kwFromQuery = (params.get('keyword') || '').trim();
-            if (kwFromQuery) {
-                // 直接跳转到 getquicker（地址栏也会变成 getquicker.net）
-                location.replace('https://getquicker.net/Search?keyword=' + encodeURIComponent(kwFromQuery));
-                return;
-            }
-            // 从 /r/关键词 提取关键词
-            let keyword = '有明';
-            const match = window.location.pathname.match(/\/r\/(.+)/);
-            if (match) {
-                keyword = decodeURIComponent(match[1]).trim();
-                if (!keyword) keyword = 'Quicker';
+            const noAnim = params.get('noanim') === '0'; // 显式开关：强制无动画1
+
+            // 解析关键词：优先取 query，其次 /r/xxx，最后默认
+            let keyword = kwFromQuery;
+            if (!keyword) {
+              const m = decodeURI(location.pathname).match(/\/r\/(.+)/);
+              keyword = (m && m[1].trim()) || 'Quicker';
             }
 
             const input = document.getElementById('typeTarget');
@@ -50,16 +46,25 @@
 
             // 初始定位到输入框
             const moveCursor = (el) => {
+                el.scrollIntoView({ block: 'center', behavior: 'smooth' });
                 const rect = el.getBoundingClientRect();
                 cursor.style.left = (rect.left + rect.width / 2 - 10) + 'px';
                 cursor.style.top = (rect.top + rect.height / 2 - 10) + 'px';
             };
 
+            // 如果显式要求无动画，并且有关键词，直接跳转
+            if (noAnim && keyword) {
+             location.replace('https://getquicker.net/Search?keyword=' + encodeURIComponent(keyword));
+             return;
+            }
+
+            // 动画流程
             moveCursor(input);
 
             // 打字动画
             let i = 0;
-            const speed = 120;
+            // 让短关键词更慢一些，否则“两下就打完”，看起来像没动画
+            const speed = Math.max(160, 300 - keyword.length * 5);
             const type = () => {
                 if (i < keyword.length) {
                     input.value += keyword.charAt(i);
