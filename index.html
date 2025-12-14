@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正在搜索 Quicker...</title>
+
+    <!-- Quicker 官方 CDN 资源，保证样式、脚本、图标正常加载 -->
+    <link rel="stylesheet" href="https://libs.getquicker.cn/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://libs.getquicker.cn/npm/animate.css@3.7.2/animate.min.css">
+    <link rel="stylesheet" href="https://files.getquicker.net/_sitefiles/www/libs/fontawesome/5.13.0/css/all.min.css">
+
+    <!-- 主题和站点样式（使用绝对路径，避免 Vercel 上相对路径失效） -->
+    <link rel="stylesheet" href="https://getquicker.net/assets/css/theme-4.css">
+    <link rel="stylesheet" href="https://getquicker.net/assets/css/site.css">
+
+    <style>
+        body { min-height: 100vh; background: var(--bg-color, #fff); }
+        #fakeMouse {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            z-index: 9999;
+            pointer-events: none;
+            transition: left 0.6s ease, top 0.6s ease;
+        }
+    </style>
+
+    <script>
+        window.addEventListener('load', () => {
+            // 从 /r/关键词 提取关键词
+            let keyword = '有明';
+            const match = window.location.pathname.match(/\/r\/(.+)/);
+            if (match) {
+                keyword = decodeURIComponent(match[1]).trim();
+                if (!keyword) keyword = 'Quicker';
+            }
+
+            const input = document.getElementById('typeTarget');
+            const button = document.getElementById('button-addon2');
+            const cursor = document.getElementById('fakeMouse');
+
+            // 初始定位到输入框
+            const moveCursor = (el) => {
+                const rect = el.getBoundingClientRect();
+                cursor.style.left = (rect.left + rect.width / 2 - 10) + 'px';
+                cursor.style.top = (rect.top + rect.height / 2 - 10) + 'px';
+            };
+
+            moveCursor(input);
+
+            // 打字动画
+            let i = 0;
+            const speed = 120;
+            const type = () => {
+                if (i < keyword.length) {
+                    input.value += keyword.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    // 打字完成 → 鼠标移到按钮
+                    moveCursor(button);
+                    setTimeout(() => {
+                        location.href = 'https://getquicker.net/Search?keyword=' + encodeURIComponent(keyword);
+                    }, 700);
+                }
+            };
+
+            setTimeout(type, 600);
+        });
+    </script>
+</head>
+
+<body>
+    <!-- 假鼠标指针 -->
+    <img id="fakeMouse" src="https://files.getquicker.net/_icons/3BF697205321B86021169A09A6E8748733DDF46A.png" alt="">
+
+    <!-- 导航栏（与官网一致） -->
+    <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="https://getquicker.net">
+                <img src="https://getquicker.net/quicker_white.svg" alt="Quicker" style="height:26px;">
+                <span class="ml-2">Quicker</span>
+            </a>
+            <!-- 其他导航项省略，只保留搜索框和主要链接，保持简洁 -->
+            <div class="ml-auto d-flex align-items-center">
+                <a href="https://getquicker.net/Share" class="text-light mx-3">分享</a>
+                <a href="https://getquicker.net/KC" class="text-light mx-3">文档</a>
+                <a href="https://getquicker.net/QA" class="text-light mx-3">讨论</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主搜索区域 -->
+    <div class="container my-5 pt-5">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 text-center">
+                <h4 class="mb-5">搜索 Quicker 文档与论坛</h4>
+                <div class="input-group input-group-lg">
+                    <input type="text" id="typeTarget" class="form-control border-success" placeholder="关键词..." autocomplete="off">
+                    <div class="input-group-append">
+                        <button class="btn btn-success" type="button" id="button-addon2">搜索</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部（简洁版） -->
+    <footer class="mt-auto py-4 text-center text-secondary small">
+        Copyright © 北京立迩合讯科技有限公司 · 
+        <a href="https://getquicker.net" class="text-secondary">getquicker.net</a>
+    </footer>
+</body>
+</html>
