@@ -28,6 +28,14 @@
 
     <script>
         window.addEventListener('load', () => {
+            // ✅【新增】优先处理 /Search?keyword=xxx
+            const params = new URLSearchParams(window.location.search);
+            const kwFromQuery = (params.get('keyword') || '').trim();
+            if (kwFromQuery) {
+                // 直接跳转到 getquicker（地址栏也会变成 getquicker.net）
+                location.replace('https://getquicker.net/Search?keyword=' + encodeURIComponent(kwFromQuery));
+                return;
+            }
             // 从 /r/关键词 提取关键词
             let keyword = '有明';
             const match = window.location.pathname.match(/\/r\/(.+)/);
